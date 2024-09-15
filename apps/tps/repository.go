@@ -3,6 +3,7 @@ package tps
 import (
 	"context"
 	"database/sql"
+	"log"
 	"nbid-online-shop/infra/response"
 
 	"github.com/jmoiron/sqlx"
@@ -227,6 +228,8 @@ func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId
 		return updatedModel, err
 	}
 
+	log.Println(userId)
+
 	// Fetch updated data
 	selectQuery := `
 		SELECT
@@ -239,6 +242,8 @@ func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId
 	`
 
 	err = r.db.GetContext(ctx, &updatedModel, selectQuery, userId)
+
+	log.Println(updatedModel)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
