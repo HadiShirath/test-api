@@ -243,7 +243,7 @@ func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId
 
 	err = r.db.GetContext(ctx, &updatedModel, selectQuery, userId)
 
-	log.Println(updatedModel)
+	log.Println("updatedModel", updatedModel)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

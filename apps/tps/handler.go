@@ -3,6 +3,7 @@ package tps
 import (
 	"context"
 	"fmt"
+	"log"
 	infrafiber "nbid-online-shop/infra/fiber"
 	"nbid-online-shop/infra/response"
 	"nbid-online-shop/internal/config"
@@ -301,6 +302,8 @@ func (h handler) UpdateVoteTPSByUser(ctx *fiber.Ctx) error {
 	}
 
 	data, err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
+
+	log.Println(data, err)
 	// err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
@@ -314,7 +317,11 @@ func (h handler) UpdateVoteTPSByUser(ctx *fiber.Ctx) error {
 		).Send(ctx)
 	}
 
+	log.Println("data", data)
+
 	dataPayload := data.ToTpsDetailFromUpdateDataResponse()
+
+	log.Println("dataPayload", dataPayload)
 
 	return infrafiber.NewResponse(
 		infrafiber.WithHttpCode(http.StatusOK),
