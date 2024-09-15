@@ -245,7 +245,7 @@ func (h handler) GetListTPS(ctx *fiber.Ctx) error {
 	).Send(ctx)
 }
 
-func (h handler) GetVoteTPS(ctx *fiber.Ctx) error {
+func (h handler) UpdateVoteTPS(ctx *fiber.Ctx) error {
 	var req = EditVoteTPSRequestPayload{}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -279,5 +279,45 @@ func (h handler) GetVoteTPS(ctx *fiber.Ctx) error {
 	return infrafiber.NewResponse(
 		infrafiber.WithHttpCode(http.StatusOK),
 		infrafiber.WithMessage("update data tps success"),
+	).Send(ctx)
+}
+
+func (h handler) UpdateVoteTPSByUser(ctx *fiber.Ctx) error {
+	var req = EditVoteTPSBySaksiRequestPayload{}
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("data payload invalid"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	userId := ctx.Params("id", "")
+	if userId == "" {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid user id"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	data, err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
+	// err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid data tps"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	dataPayload := data.ToTpsDetailFromUpdateDataResponse()
+
+	return infrafiber.NewResponse(
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithMessage(fmt.Sprintf("Data Kecamatan %+s, Kelurahan %+s, %+s Berhasil ditambahkan", dataPayload.KecamatanName, dataPayload.KelurahanName, dataPayload.TpsName)),
 	).Send(ctx)
 }

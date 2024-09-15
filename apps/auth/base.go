@@ -8,8 +8,8 @@ import (
 )
 
 func Init(router fiber.Router, db *sqlx.DB) {
-	repo := newRepository(db)
-	svc := newService(repo)
+	repo := NewRepository(db)
+	svc := NewService(repo)
 	handler := NewHandler(svc)
 
 	authRouter := router.Group("auth")

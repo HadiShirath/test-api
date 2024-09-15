@@ -1,6 +1,7 @@
 package tps
 
 import (
+	"nbid-online-shop/apps/auth"
 	infrafiber "nbid-online-shop/infra/fiber"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,7 +10,8 @@ import (
 
 func Init(router fiber.Router, db *sqlx.DB) {
 	repo := NewRepository(db)
-	svc := NewService(repo)
+	repoAuth := auth.NewRepository(db)
+	svc := NewService(repo, repoAuth)
 	handler := NewHandler(svc)
 
 	productRoute := router.Group("tps")
@@ -20,6 +22,7 @@ func Init(router fiber.Router, db *sqlx.DB) {
 		productRoute.Post("/photo", infrafiber.CheckAuth(), handler.CreatePhoto)
 		productRoute.Get("/voter/all", infrafiber.CheckAuth(), handler.GetAllVoterTPS)
 		productRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterTPS)
-		productRoute.Put("/voter/:id", infrafiber.CheckAuth(), handler.GetVoteTPS)
+		productRoute.Put("/voter/user/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPSByUser)
+		productRoute.Put("/voter/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPS)
 	}
 }

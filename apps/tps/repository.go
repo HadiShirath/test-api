@@ -200,3 +200,53 @@ func (r repository) EditVoteTPS(ctx context.Context, model TPS, tpsId string) (e
 
 	return
 }
+
+// func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (err error) {
+// 	query := `
+// 		UPDATE tps SET paslon1=$1, paslon2=$2, paslon3=$3, paslon4=$4, suara_sah=$5, suara_tidak_sah=$6 WHERE user_id=$7
+// 	`
+
+// 	result, err := r.db.ExecContext(ctx, query, model.Paslon1, model.Paslon2, model.Paslon3, model.Paslon4, model.SuaraSah, model.SuaraTidakSah, userId)
+
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	return
+// }
+
+func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (updatedModel TPS, err error) {
+	query := `
+		UPDATE tps
+		SET paslon1=$1, paslon2=$2, paslon3=$3, paslon4=$4, suara_sah=$5, suara_tidak_sah=$6
+		WHERE user_id=$7
+	`
+
+	_, err = r.db.ExecContext(ctx, query, model.Paslon1, model.Paslon2, model.Paslon3, model.Paslon4, model.SuaraSah, model.SuaraTidakSah, userId)
+	if err != nil {
+		return updatedModel, err
+	}
+
+	// Fetch updated data
+	selectQuery := `
+		SELECT
+		  kecamatan.kecamatan_name, kelurahan.kelurahan_name, tps.tps_name, tps.photo
+		FROM tps
+		INNER JOIN kecamatan ON tps.kecamatan_id = kecamatan.kecamatan_id
+		INNER JOIN kelurahan ON tps.kelurahan_id = kelurahan.kelurahan_id
+		INNER JOIN auth ON tps.user_id = auth.public_id
+    	WHERE tps.user_id=$1
+	`
+
+	err = r.db.GetContext(ctx, &updatedModel, selectQuery, userId)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = response.ErrNotFound
+			return
+		}
+		return
+	}
+
+	return
+}

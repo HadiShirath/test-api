@@ -18,6 +18,14 @@ type EditVoteTPSRequestPayload struct {
 	SuaraSah      int32 `json:"suara_sah"`
 	SuaraTidakSah int32 `json:"suara_tidak_sah"`
 }
+type EditVoteTPSBySaksiRequestPayload struct {
+	CodeUnique    string `json:"code"`
+	Paslon1       int32  `json:"paslon1"`
+	Paslon2       int32  `json:"paslon2"`
+	Paslon3       int32  `json:"paslon3"`
+	Paslon4       int32  `json:"paslon4"`
+	SuaraTidakSah int32  `json:"suara_tidak_sah"`
+}
 
 type ListTPSSaksiRequestPayload struct {
 	Offset int `query:"offset" json:"offset"`

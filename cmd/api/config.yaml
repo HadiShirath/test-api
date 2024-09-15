@@ -1,6 +1,7 @@
 app:
-  name: nbid-online-shop
+  name: api-kamarhitung
   port: ":4000"
+  code: "kmht"
   encryption: 
     salt: 10
     jwt_secret: iniAdalahSecretToken

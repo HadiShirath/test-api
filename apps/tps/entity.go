@@ -2,6 +2,7 @@ package tps
 
 import (
 	"nbid-online-shop/infra/response"
+	"nbid-online-shop/internal/config"
 	"nbid-online-shop/utility"
 )
 
@@ -57,6 +58,17 @@ func NewFromEditVoteTPSRequest(req EditVoteTPSRequestPayload) TPS {
 	}
 }
 
+func NewFromEditVoteBySaksiTPSRequest(req EditVoteTPSBySaksiRequestPayload) TPS {
+	return TPS{
+		Paslon1:       req.Paslon1,
+		Paslon2:       req.Paslon2,
+		Paslon3:       req.Paslon3,
+		Paslon4:       req.Paslon4,
+		SuaraSah:      req.Paslon1 + req.Paslon2 + req.Paslon3 + req.Paslon4,
+		SuaraTidakSah: req.SuaraTidakSah,
+	}
+}
+
 func NewTPSSaksiPaginationFromProductRequest(req ListTPSSaksiRequestPayload) TPSPagination {
 	req = req.GenerateDefaultValue()
 	return TPSPagination{
@@ -106,6 +118,14 @@ func (t TPS) ToTpsDetailResponse() TpsDetailResponse {
 	}
 }
 
+func (t TPS) ToTpsDetailFromUpdateDataResponse() TpsDetailResponseFromUpdateData {
+	return TpsDetailResponseFromUpdateData{
+		KecamatanName: t.KecamatanName,
+		KelurahanName: t.KelurahanName,
+		TpsName:       t.TpsName,
+	}
+}
+
 func (t TPS) ToGetAllVoterTPSResponse() GetAllVoterTPSResponse {
 	return GetAllVoterTPSResponse{
 		Paslon1:       t.Paslon1,
@@ -141,4 +161,12 @@ func (t TPS) ValidateUserId() (err error) {
 
 func (t TPS) GenerateTokenData(secret string) (tokenString string, err error) {
 	return utility.GenerateTokenData(t.UserId, t.KecamatanName, t.KelurahanName, t.TpsName, t.Photo, t.Fullname, secret)
+}
+
+func validateCodeUnique(codeUnique string) (err error) {
+	if codeUnique != config.Cfg.App.Code {
+		return response.ErrCodeInvalid
+	}
+
+	return
 }

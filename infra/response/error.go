@@ -22,6 +22,7 @@ var (
 	ErrUsernameAlreadyUsed   = errors.New("username already used")
 	ErrPasswordNotMatch      = errors.New("password not match")
 	ErrUserIdInvalid         = errors.New("user invalid")
+	ErrCodeInvalid           = errors.New("code unique is invalid")
 
 	// products
 	ErrProductRequired = errors.New("product is required")
@@ -71,6 +72,7 @@ var (
 	ErrorStockInvalid          = NewError(ErrStockInvalid.Error(), "40007", http.StatusBadRequest)
 	ErrorPriceInvalid          = NewError(ErrPriceInvalid.Error(), "40008", http.StatusBadRequest)
 	ErrorAmountInvalid         = NewError(ErrAmountInvalid.Error(), "40009", http.StatusBadRequest)
+	ErrorCodeInvalid           = NewError(ErrCodeInvalid.Error(), "40010", http.StatusBadRequest)
 
 	ErrorAuthIsNoExists   = NewError(ErrAuthIsNoExists.Error(), "40401", http.StatusNotFound)
 	ErrorEmailAlreadyUsed = NewError(ErrUsernameAlreadyUsed.Error(), "40901", http.StatusConflict)
@@ -92,5 +94,6 @@ var (
 		ErrPasswordNotMatch.Error():      ErrorPasswordNotMatch,
 		ErrUnAuthorized.Error():          ErrorUnAuthorized,
 		ErrForbiddenAcces.Error():        ErrorForbiddenAccess,
+		ErrCodeInvalid.Error():           ErrorCodeInvalid,
 	}
 )

@@ -12,7 +12,7 @@ type repository struct {
 	db *sqlx.DB
 }
 
-func newRepository(db *sqlx.DB) repository {
+func NewRepository(db *sqlx.DB) repository {
 	return repository{
 		db: db,
 	}

@@ -38,6 +38,8 @@ func main() {
 		AppName: config.Cfg.App.Name,
 	})
 
+	api := app.Group("/v1")
+
 	// Configure CORS
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:5173", // Change this to the allowed origin
@@ -49,13 +51,13 @@ func main() {
 	app.Static("/images", "./public/images")
 
 	// Initialize routes
-	auth.Init(app, db)
-	product.Init(app, db)
-	transaction.Init(app, db)
-	tps.Init(app, db)
-	kelurahan.Init(app, db)
-	kecamatan.Init(app, db)
-	user.Init(app, db)
+	auth.Init(api, db)
+	product.Init(api, db)
+	transaction.Init(api, db)
+	tps.Init(api, db)
+	kelurahan.Init(api, db)
+	kecamatan.Init(api, db)
+	user.Init(api, db)
 
 	// Start server
 	log.Fatal(app.Listen(config.Cfg.App.Port))

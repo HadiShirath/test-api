@@ -7,6 +7,11 @@ type TpsDetailResponse struct {
 	Photo         string `json:"photo"`
 	Fullname      string `json:"fullname"`
 }
+type TpsDetailResponseFromUpdateData struct {
+	KecamatanName string `json:"kecamatan_name"`
+	KelurahanName string `json:"kelurahan_name"`
+	TpsName       string `json:"tps_name"`
+}
 
 type GetVoterTPSResponse struct {
 	KecamatanName string `json:"kecamatan_name"`

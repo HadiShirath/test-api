@@ -15,6 +15,7 @@ type AppConfig struct {
 	Name       string           `yaml:"name"`
 	Port       string           `yaml:"port"`
 	Encryption EncryptionConfig `yaml:"encryption"`
+	Code       string           `yaml:"code"`
 }
 
 type EncryptionConfig struct {

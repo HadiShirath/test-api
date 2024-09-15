@@ -2,6 +2,8 @@ package tps
 
 import (
 	"context"
+	"log"
+	"nbid-online-shop/apps/auth"
 	"nbid-online-shop/infra/response"
 	"nbid-online-shop/internal/config"
 )
@@ -15,15 +17,19 @@ type Repository interface {
 	EditTPSSaksi(ctx context.Context, model TPS, userId string) (err error)
 	GetListTPS(ctx context.Context) (tpss []TPS, err error)
 	EditVoteTPS(ctx context.Context, model TPS, tpsId string) (err error)
+	// UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (err error)
+	UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (updatedModel TPS, err error)
 }
 
 type service struct {
-	repo Repository
+	repo     Repository
+	repoAuth auth.Repository
 }
 
-func NewService(repo Repository) service {
+func NewService(repo Repository, repoAuth auth.Repository) service {
 	return service{
-		repo: repo,
+		repo:     repo,
+		repoAuth: repoAuth,
 	}
 }
 
@@ -132,6 +138,29 @@ func (s service) EditVoteTPS(ctx context.Context, req EditVoteTPSRequestPayload,
 	voteTPSEntity := NewFromEditVoteTPSRequest(req)
 
 	if err = s.repo.EditVoteTPS(ctx, voteTPSEntity, tpsId); err != nil {
+		return
+	}
+
+	return
+}
+
+func (s service) UpdateVoteTPSByUserId(ctx context.Context, req EditVoteTPSBySaksiRequestPayload, username string) (tps TPS, err error) {
+
+	voteTPSEntity := NewFromEditVoteBySaksiTPSRequest(req)
+
+	if err = validateCodeUnique(req.CodeUnique); err != nil {
+		return
+	}
+
+	log.Println(voteTPSEntity)
+
+	model, err := s.repoAuth.GetAuthByUsername(ctx, username)
+	if err != nil {
+		return
+	}
+
+	tps, err = s.repo.UpdateVoteTPSByUserId(ctx, voteTPSEntity, model.PublicId.String())
+	if err != nil {
 		return
 	}
 
