@@ -21,9 +21,9 @@ func NewRepository(db *sqlx.DB) repository {
 func (r repository) CreateAuth(ctx context.Context, model AuthEntity) (err error) {
 	query := `
 		INSERT INTO auth (
-			username, password, role, fullname, created_at, updated_at, public_id
+			username, password, password_decoded, role, fullname, created_at, updated_at, public_id
 		) VALUES (
-			:username, :password, :role, :fullname, :created_at, :updated_at, :public_id
+			:username, :password, :password_decoded, :role, :fullname, :created_at, :updated_at, :public_id
 		)
 	`
 	stmt, err := r.db.PrepareNamedContext(ctx, query)

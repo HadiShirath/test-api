@@ -2,14 +2,20 @@ package tps
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"mime/multipart"
 	"nbid-online-shop/apps/auth"
 	"nbid-online-shop/infra/response"
-	"nbid-online-shop/internal/config"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Repository interface {
 	CreatePhoto(ctx context.Context, model TPS, userId string) (err error)
+	UploadDataTPS(ctx context.Context, model TPS, userId string) (err error)
 	GetAddressTPSByUserId(ctx context.Context, userId string) (tps TPS, err error)
 	GetAllVoterTPS(ctx context.Context) (tps TPS, err error)
 	GetVoterTPS(ctx context.Context, codeTPS string) (tps TPS, err error)
@@ -33,14 +39,90 @@ func NewService(repo Repository, repoAuth auth.Repository) service {
 	}
 }
 
-func (s service) CreatePhoto(ctx context.Context, userId string, filename string) (err error) {
+func (s service) CreatePhoto(ctx context.Context, c *fiber.Ctx, file *multipart.FileHeader, userId string) (err error) {
+	filenameFromUser := file.Filename
+	ext_photo := filepath.Ext(filenameFromUser)
+
+	dataUser, err := s.repo.GetAddressTPSByUserId(ctx, userId)
+	if err != nil {
+		return
+	}
+
+	// jika photo sebelumnya ada, maka hapus foto sebelumnya
+	if dataUser.Photo != "" {
+		filePath := filepath.Join("./public/images/", dataUser.Photo)
+		os.Remove(filePath)
+	}
+
+	// nama file photo untuk simpan database
+	timestamp := time.Now().Unix()
+	filenameToDB := fmt.Sprintf("%+s-%+s-%+s-%+v%+s", dataUser.KecamatanName, dataUser.KelurahanName, dataUser.TpsName, timestamp, ext_photo)
+
+	// simpan file di direktori
+	errSaveFile := c.SaveFile(file, fmt.Sprintf("./public/images/%s", filenameToDB))
+	if errSaveFile != nil {
+		return errSaveFile
+	}
 
 	productEntity := NewFromCreatePhotoRequest(
 		CreatePhotoRequestPayload{
-			Photo: filename,
+			Photo: filenameToDB,
 		})
 
 	if err = s.repo.CreatePhoto(ctx, productEntity, userId); err != nil {
+		return
+	}
+
+	return
+
+}
+
+func (s service) UploadDataTPS(ctx context.Context, c *fiber.Ctx, values []string, file *multipart.FileHeader, userId string) (err error) {
+
+	tpsEntity := NewFromUploadDataRequest(
+		UploadDataRequestPayload{
+			Paslon1:       values[0],
+			Paslon2:       values[1],
+			Paslon3:       values[2],
+			Paslon4:       values[3],
+			SuaraSah:      values[4],
+			SuaraTidakSah: values[5],
+		})
+
+	err = tpsEntity.ValidateSuaraSah()
+	if err != nil {
+		return err
+	}
+
+	dataUser, err := s.repo.GetAddressTPSByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	if file != nil {
+		filenameFromUser := file.Filename
+		ext_photo := filepath.Ext(filenameFromUser)
+
+		// jika photo sebelumnya ada, maka hapus foto sebelumnya
+		if dataUser.Photo != "" {
+			filePath := filepath.Join("./public/images/", dataUser.Photo)
+			os.Remove(filePath)
+		}
+
+		// nama file photo untuk simpan database
+		timestamp := time.Now().Unix()
+		filenameToDB := fmt.Sprintf("%+s-%+s-%+s-%+v%+s", dataUser.KecamatanName, dataUser.KelurahanName, dataUser.TpsName, timestamp, ext_photo)
+
+		// simpan file di direktori
+		errSaveFile := c.SaveFile(file, fmt.Sprintf("./public/images/%s", filenameToDB))
+		if errSaveFile != nil {
+			return errSaveFile
+		}
+
+		tpsEntity.Photo = filenameToDB
+	}
+
+	if err = s.repo.UploadDataTPS(ctx, tpsEntity, dataUser.UserId); err != nil {
 		return
 	}
 
@@ -57,15 +139,14 @@ func (s service) CheckPhoto(ctx context.Context, userId string) (photo string, e
 	return model.Photo, nil
 }
 
-func (s service) TPSAdressDetail(ctx context.Context, userId string) (token string, err error) {
+func (s service) TPSAdressDetail(ctx context.Context, userId string) (tps TPS, err error) {
 
 	model, err := s.repo.GetAddressTPSByUserId(ctx, userId)
 	if err != nil {
 		return
 	}
 
-	token, err = model.GenerateTokenData(config.Cfg.App.Encryption.JWTSecret)
-	return
+	return model, nil
 }
 
 func (s service) GetAllVoterTPS(ctx context.Context) (tps TPS, err error) {
@@ -151,8 +232,6 @@ func (s service) UpdateVoteTPSByUserId(ctx context.Context, req EditVoteTPSBySak
 	if err = validateCodeUnique(req.CodeUnique); err != nil {
 		return
 	}
-
-	log.Println(voteTPSEntity)
 
 	model, err := s.repoAuth.GetAuthByUsername(ctx, username)
 	if err != nil {

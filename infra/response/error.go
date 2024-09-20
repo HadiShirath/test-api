@@ -23,6 +23,8 @@ var (
 	ErrPasswordNotMatch      = errors.New("password not match")
 	ErrUserIdInvalid         = errors.New("user invalid")
 	ErrCodeInvalid           = errors.New("code unique is invalid")
+	ErrUserNotFound          = errors.New("user not found")
+	ErrTotalVoteInvalid      = errors.New("total vote exceed the limit")
 
 	// products
 	ErrProductRequired = errors.New("product is required")
@@ -73,6 +75,7 @@ var (
 	ErrorPriceInvalid          = NewError(ErrPriceInvalid.Error(), "40008", http.StatusBadRequest)
 	ErrorAmountInvalid         = NewError(ErrAmountInvalid.Error(), "40009", http.StatusBadRequest)
 	ErrorCodeInvalid           = NewError(ErrCodeInvalid.Error(), "40010", http.StatusBadRequest)
+	ErrorTotalVoteInvalid      = NewError(ErrTotalVoteInvalid.Error(), "40010", http.StatusBadRequest)
 
 	ErrorAuthIsNoExists   = NewError(ErrAuthIsNoExists.Error(), "40401", http.StatusNotFound)
 	ErrorEmailAlreadyUsed = NewError(ErrUsernameAlreadyUsed.Error(), "40901", http.StatusConflict)
@@ -95,5 +98,6 @@ var (
 		ErrUnAuthorized.Error():          ErrorUnAuthorized,
 		ErrForbiddenAcces.Error():        ErrorForbiddenAccess,
 		ErrCodeInvalid.Error():           ErrorCodeInvalid,
+		ErrTotalVoteInvalid.Error():      ErrorTotalVoteInvalid,
 	}
 )

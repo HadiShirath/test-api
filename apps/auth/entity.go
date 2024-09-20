@@ -18,24 +18,26 @@ const (
 )
 
 type AuthEntity struct {
-	PublicId  uuid.UUID `db:"public_id"`
-	Username  string    `db:"username"`
-	Fullname  string    `db:"fullname"`
-	Password  string    `db:"password"`
-	Role      Role      `db:"role"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	PublicId        uuid.UUID `db:"public_id"`
+	Username        string    `db:"username"`
+	Fullname        string    `db:"fullname"`
+	Password        string    `db:"password"`
+	PasswordDecoded string    `db:"password_decoded"`
+	Role            Role      `db:"role"`
+	CreatedAt       time.Time `db:"created_at"`
+	UpdatedAt       time.Time `db:"updated_at"`
 }
 
 func NewFromRegisterRequest(req RegisterRequestPayload) AuthEntity {
 	return AuthEntity{
-		PublicId:  uuid.New(),
-		Username:  req.Username,
-		Fullname:  req.Fullname,
-		Password:  req.Password,
-		Role:      ROLE_Saksi,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		PublicId:        uuid.New(),
+		Username:        req.Username,
+		Fullname:        req.Fullname,
+		Password:        req.Password,
+		PasswordDecoded: req.Password,
+		Role:            ROLE_Saksi,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 }
 

@@ -4,6 +4,12 @@ type TpsDetailResponse struct {
 	KecamatanName string `json:"kecamatan_name"`
 	KelurahanName string `json:"kelurahan_name"`
 	TpsName       string `json:"tps_name"`
+	Paslon1       int32  `json:"paslon1"`
+	Paslon2       int32  `json:"paslon2"`
+	Paslon3       int32  `json:"paslon3"`
+	Paslon4       int32  `json:"paslon4"`
+	SuaraSah      int32  `json:"suara_sah"`
+	SuaraTidakSah int32  `json:"suara_tidak_sah"`
 	Photo         string `json:"photo"`
 	Fullname      string `json:"fullname"`
 }

@@ -4,6 +4,16 @@ type CreatePhotoRequestPayload struct {
 	Photo string `json:"photo"`
 }
 
+type UploadDataRequestPayload struct {
+	Paslon1       string `json:"paslon1"`
+	Paslon2       string `json:"paslon2"`
+	Paslon3       string `json:"paslon3"`
+	Paslon4       string `json:"paslon4"`
+	SuaraSah      string `json:"suara_sah"`
+	SuaraTidakSah string `json:"suara_tidak_sah"`
+	Photo         string `json:"photo"`
+}
+
 type EditTPSSaksiRequestPayload struct {
 	Fullname string `json:"fullname"`
 	Username string `json:"username"`

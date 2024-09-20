@@ -54,7 +54,6 @@ func (h handler) login(ctx *fiber.Ctx) error {
 		return infrafiber.NewResponse(
 			infrafiber.WithMessage("login failed"),
 			infrafiber.WithError(myErr),
-			// infrafiber.WithHttpCode(http.StatusBadRequest),
 		).Send(ctx)
 	}
 
@@ -72,21 +71,25 @@ func (h handler) login(ctx *fiber.Ctx) error {
 	}
 
 	// Set cookie dengan atribut yang sesuai
-	if role == "saksi" || role == "user" {
+	if role != "admin" {
 		ctx.Cookie(&fiber.Cookie{
 			Name:     "access_token",                   // Nama cookie
 			Value:    token,                            // Nilai cookie
 			Expires:  time.Now().Add(10 * time.Minute), // Waktu kedaluwarsa cookie
-			Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
 			SameSite: "Lax",                            // "Lax", "Strict", atau "None" sesuai kebutuhan
+			// Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
+			Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
+			Domain: "kamarhitung.id",
 		})
-	} else if role == "admin" {
+	} else {
 		ctx.Cookie(&fiber.Cookie{
 			Name:     "access_token",                   // Nama cookie
 			Value:    token,                            // Nilai cookie
-			Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
 			SameSite: "Lax",                            // "Lax", "Strict", atau "None" sesuai kebutuhan
 			Expires:  time.Now().Add(10 * time.Minute), // Waktu kedaluwarsa cookie
+			// Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
+			Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
+			Domain: "kamarhitung.id",
 		})
 	}
 

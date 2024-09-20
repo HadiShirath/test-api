@@ -1,9 +1,11 @@
 package tps
 
 import (
+	"log"
 	"nbid-online-shop/infra/response"
 	"nbid-online-shop/internal/config"
 	"nbid-online-shop/utility"
+	"strconv"
 )
 
 type TPS struct {
@@ -39,6 +41,18 @@ func NewFromCreatePhotoRequest(req CreatePhotoRequestPayload) TPS {
 	}
 }
 
+func NewFromUploadDataRequest(req UploadDataRequestPayload) TPS {
+	return TPS{
+		Paslon1:       parseToInt32(req.Paslon1),
+		Paslon2:       parseToInt32(req.Paslon2),
+		Paslon3:       parseToInt32(req.Paslon3),
+		Paslon4:       parseToInt32(req.Paslon4),
+		SuaraSah:      parseToInt32(req.SuaraSah),
+		SuaraTidakSah: parseToInt32(req.SuaraTidakSah),
+		Photo:         req.Photo,
+	}
+}
+
 func NewFromEditTPSSaksiRequest(req EditTPSSaksiRequestPayload) TPS {
 	return TPS{
 		Fullname: req.Fullname,
@@ -59,6 +73,7 @@ func NewFromEditVoteTPSRequest(req EditVoteTPSRequestPayload) TPS {
 }
 
 func NewFromEditVoteBySaksiTPSRequest(req EditVoteTPSBySaksiRequestPayload) TPS {
+
 	return TPS{
 		Paslon1:       req.Paslon1,
 		Paslon2:       req.Paslon2,
@@ -113,6 +128,12 @@ func (t TPS) ToTpsDetailResponse() TpsDetailResponse {
 		KecamatanName: t.KecamatanName,
 		KelurahanName: t.KelurahanName,
 		TpsName:       t.TpsName,
+		Paslon1:       t.Paslon1,
+		Paslon2:       t.Paslon2,
+		Paslon3:       t.Paslon3,
+		Paslon4:       t.Paslon4,
+		SuaraSah:      t.SuaraSah,
+		SuaraTidakSah: t.SuaraTidakSah,
 		Photo:         t.Photo,
 		Fullname:      t.Fullname,
 	}
@@ -166,6 +187,22 @@ func (t TPS) GenerateTokenData(secret string) (tokenString string, err error) {
 func validateCodeUnique(codeUnique string) (err error) {
 	if codeUnique != config.Cfg.App.Code {
 		return response.ErrCodeInvalid
+	}
+
+	return
+}
+
+func parseToInt32(value string) int32 {
+	parsedValue, err := strconv.ParseInt(value, 10, 32)
+	if err != nil {
+		log.Println("error converting value")
+	}
+	return int32(parsedValue)
+}
+
+func (t TPS) ValidateSuaraSah() (err error) {
+	if t.Paslon1+t.Paslon2+t.Paslon3+t.Paslon4 > 600+600*0.02 {
+		return response.ErrTotalVoteInvalid
 	}
 
 	return

@@ -3,15 +3,9 @@ package tps
 import (
 	"context"
 	"fmt"
-	"log"
 	infrafiber "nbid-online-shop/infra/fiber"
 	"nbid-online-shop/infra/response"
-	"nbid-online-shop/internal/config"
-	"nbid-online-shop/utility"
 	"net/http"
-	"os"
-	"path/filepath"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -27,6 +21,8 @@ func NewHandler(svc service) handler {
 }
 func (h handler) CreatePhoto(ctx *fiber.Ctx) error {
 
+	user_id := fmt.Sprintf("%+v", ctx.Locals("PUBLIC_ID"))
+
 	file, errFile := ctx.FormFile("photo")
 	if errFile != nil {
 		return infrafiber.NewResponse(
@@ -36,53 +32,8 @@ func (h handler) CreatePhoto(ctx *fiber.Ctx) error {
 		).Send(ctx)
 	}
 
-	filenameFromUser := file.Filename
-	ext_photo := filepath.Ext(filenameFromUser)
-
-	// TODO : CHECK EXTENSION FILE
-	// file ekstensi yang diizinkan hanya jpg,jpeg,png
-	// if ext_photo != ".jpg" && ext_photo != ".jpeg" && ext_photo != ".png" {
-	// 	return infrafiber.NewResponse(
-	// 		infrafiber.WithError(fiber.ErrBadRequest),
-	// 		infrafiber.WithMessage("Invalid file extension. Allowed extensions: .jpg, .jpeg, .png"),
-	// 		infrafiber.WithHttpCode(http.StatusBadRequest),
-	// 	).Send(ctx)
-	// }
-
-	// get cookies user
-	tokenUserData := ctx.Cookies("user")
-
-	// validasi data yang sudah di generate token
-	dataUser, err := utility.ValidateTokenData(tokenUserData, config.Cfg.App.Encryption.JWTSecret)
-	if err != nil {
-		return infrafiber.NewResponse(
-			infrafiber.WithMessage("invalid process validate user"),
-			infrafiber.WithError(err),
-			infrafiber.WithHttpCode(http.StatusBadRequest),
-		).Send(ctx)
-	}
-
-	// jika photo sebelumnya ada, maka hapus foto sebelumnya
-	if dataUser.Photo != "" {
-		filePath := filepath.Join("./public/images/", dataUser.Photo)
-		os.Remove(filePath)
-	}
-
-	// nama file photo untuk simpan database
-	timestamp := time.Now().Unix()
-	filenameToDB := fmt.Sprintf("%+s-%+s-%+s-%+v%+s", dataUser.Kecamatan, dataUser.Kelurahan, dataUser.TPS, timestamp, ext_photo)
-
-	// simpan file di direktori
-	errSaveFile := ctx.SaveFile(file, fmt.Sprintf("./public/images/%s", filenameToDB))
-	if errSaveFile != nil {
-		return infrafiber.NewResponse(
-			infrafiber.WithMessage("invalid process save file"),
-			infrafiber.WithError(errSaveFile),
-		).Send(ctx)
-	}
-
 	// create photo
-	if err := h.svc.CreatePhoto(context.Background(), dataUser.ID, filenameToDB); err != nil {
+	if err := h.svc.CreatePhoto(context.Background(), ctx, file, user_id); err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
 			myErr = response.ErrorGeneral
@@ -100,11 +51,50 @@ func (h handler) CreatePhoto(ctx *fiber.Ctx) error {
 	).Send(ctx)
 }
 
+func (h handler) UploadDataTPS(ctx *fiber.Ctx) error {
+
+	user_id := fmt.Sprintf("%+v", ctx.Locals("PUBLIC_ID"))
+
+	file, _ := ctx.FormFile("photo")
+
+	values := []string{"paslon1", "paslon2", "paslon3", "paslon4", "suara_sah", "suara_tidak_sah"}
+	var result []string
+
+	for _, v := range values {
+		value := ctx.FormValue(v)
+		if value == "" {
+			return infrafiber.NewResponse(
+				infrafiber.WithMessage("invalid read file for "+v),
+				infrafiber.WithHttpCode(http.StatusNotFound),
+			).Send(ctx)
+		}
+		result = append(result, value)
+	}
+
+	// create photo
+	if err := h.svc.UploadDataTPS(context.Background(), ctx, result, file, user_id); err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("upload data success"),
+		infrafiber.WithHttpCode(http.StatusCreated),
+	).Send(ctx)
+}
+
 func (h handler) TPSAdressDetail(ctx *fiber.Ctx) error {
 
 	user_id := fmt.Sprintf("%+v", ctx.Locals("PUBLIC_ID"))
 
-	tokenData, err := h.svc.TPSAdressDetail(context.Background(), user_id)
+	model, err := h.svc.TPSAdressDetail(context.Background(), user_id)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
@@ -117,19 +107,12 @@ func (h handler) TPSAdressDetail(ctx *fiber.Ctx) error {
 		).Send(ctx)
 	}
 
-	// Set cookie dengan atribut yang sesuai
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "user",                           // Nama cookie
-		Value:    tokenData,                        // Nilai cookie
-		Expires:  time.Now().Add(10 * time.Minute), // Waktu kedaluwarsa cookie
-		Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
-		SameSite: "Lax",                            // "Lax", "Strict", atau "None" sesuai kebutuhan
-	})
+	tpsEntity := model.ToTpsDetailResponse()
 
 	return infrafiber.NewResponse(
-		infrafiber.WithMessage("get tps token"),
-		infrafiber.WithHttpCode(http.StatusCreated),
-		infrafiber.WithPayload(tokenData),
+		infrafiber.WithMessage("get tps success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(tpsEntity),
 	).Send(ctx)
 }
 
@@ -302,9 +285,6 @@ func (h handler) UpdateVoteTPSByUser(ctx *fiber.Ctx) error {
 	}
 
 	data, err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
-
-	log.Println(data, err)
-	// err := h.svc.UpdateVoteTPSByUserId(context.Background(), req, userId)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
@@ -317,11 +297,7 @@ func (h handler) UpdateVoteTPSByUser(ctx *fiber.Ctx) error {
 		).Send(ctx)
 	}
 
-	log.Println("data", data)
-
 	dataPayload := data.ToTpsDetailFromUpdateDataResponse()
-
-	log.Println("dataPayload", dataPayload)
 
 	return infrafiber.NewResponse(
 		infrafiber.WithHttpCode(http.StatusOK),

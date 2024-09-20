@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"context"
-	"log"
 	"nbid-online-shop/external/database"
 	"nbid-online-shop/internal/config"
 	"testing"
@@ -51,6 +50,6 @@ func TestTransactionByUserPublicId(t *testing.T) {
 		trxs, err := svc.TransactionHistories(context.Background(), req.UserPublicId)
 		require.Nil(t, err)
 		require.NotNil(t, trxs)
-		log.Printf("%+v", trxs)
+
 	})
 }

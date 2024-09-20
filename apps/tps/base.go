@@ -20,6 +20,7 @@ func Init(router fiber.Router, db *sqlx.DB) {
 		productRoute.Get("/all", infrafiber.CheckAuth(), handler.GetListTPS)
 		productRoute.Get("/saksi", infrafiber.CheckAuth(), handler.GetTPSSaksiPagination)
 		productRoute.Post("/photo", infrafiber.CheckAuth(), handler.CreatePhoto)
+		productRoute.Post("/upload", infrafiber.CheckAuth(), handler.UploadDataTPS)
 		productRoute.Get("/voter/all", infrafiber.CheckAuth(), handler.GetAllVoterTPS)
 		productRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterTPS)
 		productRoute.Put("/voter/user/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPSByUser)

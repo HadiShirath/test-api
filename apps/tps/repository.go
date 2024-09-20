@@ -3,7 +3,6 @@ package tps
 import (
 	"context"
 	"database/sql"
-	"log"
 	"nbid-online-shop/infra/response"
 
 	"github.com/jmoiron/sqlx"
@@ -33,10 +32,33 @@ func (r repository) CreatePhoto(ctx context.Context, model TPS, userId string) (
 	return
 }
 
+func (r repository) UploadDataTPS(ctx context.Context, model TPS, userId string) (err error) {
+
+	if model.Photo != "" {
+		query := `
+		UPDATE tps SET paslon1=$1, paslon2=$2, paslon3=$3, paslon4=$4, suara_sah=$5, suara_tidak_sah=$6, photo=$7 WHERE user_id=$8
+		`
+
+		_, err = r.db.ExecContext(ctx, query, model.Paslon1, model.Paslon2, model.Paslon3, model.Paslon4, model.SuaraSah, model.SuaraTidakSah, model.Photo, userId)
+	} else {
+		query := `
+		UPDATE tps SET paslon1=$1, paslon2=$2, paslon3=$3, paslon4=$4, suara_sah=$5, suara_tidak_sah=$6 WHERE user_id=$7
+		`
+
+		_, err = r.db.ExecContext(ctx, query, model.Paslon1, model.Paslon2, model.Paslon3, model.Paslon4, model.SuaraSah, model.SuaraTidakSah, userId)
+	}
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (r repository) GetAddressTPSByUserId(ctx context.Context, userId string) (tps TPS, err error) {
 	query := `
 		SELECT
-		  tps.user_id, kecamatan.kecamatan_name, kelurahan.kelurahan_name , tps.tps_name, tps.photo, auth.fullname
+		  tps.user_id, kecamatan.kecamatan_name, kelurahan.kelurahan_name , tps.tps_name, tps.paslon1, tps.paslon2, tps.paslon3, tps.paslon4, tps.suara_sah, tps.suara_tidak_sah, tps.photo, auth.fullname
 		FROM tps
 		INNER JOIN kecamatan ON tps.kecamatan_id = kecamatan.kecamatan_id
 		INNER JOIN kelurahan ON tps.kelurahan_id = kelurahan.kelurahan_id
@@ -202,20 +224,6 @@ func (r repository) EditVoteTPS(ctx context.Context, model TPS, tpsId string) (e
 	return
 }
 
-// func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (err error) {
-// 	query := `
-// 		UPDATE tps SET paslon1=$1, paslon2=$2, paslon3=$3, paslon4=$4, suara_sah=$5, suara_tidak_sah=$6 WHERE user_id=$7
-// 	`
-
-// 	result, err := r.db.ExecContext(ctx, query, model.Paslon1, model.Paslon2, model.Paslon3, model.Paslon4, model.SuaraSah, model.SuaraTidakSah, userId)
-
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	return
-// }
-
 func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (updatedModel TPS, err error) {
 	query := `
 		UPDATE tps
@@ -227,8 +235,6 @@ func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId
 	if err != nil {
 		return updatedModel, err
 	}
-
-	log.Println(userId)
 
 	// Fetch updated data
 	selectQuery := `
@@ -242,8 +248,6 @@ func (r repository) UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId
 	`
 
 	err = r.db.GetContext(ctx, &updatedModel, selectQuery, userId)
-
-	log.Println("updatedModel", updatedModel)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
