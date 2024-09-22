@@ -4,7 +4,7 @@ app:
   code: "kmht"
   encryption: 
     salt: 10
-    jwt_secret: iniAdalahSecretToken
+    jwt_secret: (.3Wlu?+:x]R?3|a
     
 db: 
   host: localhost

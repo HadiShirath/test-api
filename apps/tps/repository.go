@@ -140,8 +140,6 @@ func (r repository) GetAllTPSSaksiWithPaginationCursor(ctx context.Context, mode
 	JOIN auth a ON t.user_id = a.public_id
 		ORDER BY k.kecamatan_name ASC, l.kelurahan_name ASC, t.tps_name ASC
 	`
-	// OFFSET $1
-	// LIMIT $2
 
 	// err = r.db.SelectContext(ctx, &tpss, query, model.Offset, model.Limit)
 	err = r.db.SelectContext(ctx, &tpss, query)
