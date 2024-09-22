@@ -5,6 +5,7 @@ import (
 	"nbid-online-shop/apps/auth"
 	"nbid-online-shop/apps/kecamatan"
 	"nbid-online-shop/apps/kelurahan"
+	"nbid-online-shop/apps/message"
 	"nbid-online-shop/apps/product"
 	"nbid-online-shop/apps/tps"
 	"nbid-online-shop/apps/transaction"
@@ -59,6 +60,7 @@ func main() {
 	kelurahan.Init(api, db)
 	kecamatan.Init(api, db)
 	user.Init(api, db)
+	message.Init(api, db)
 
 	// Start server
 	log.Fatal(app.Listen(config.Cfg.App.Port))
