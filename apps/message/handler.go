@@ -100,6 +100,34 @@ func (h handler) CreateMessage(ctx *fiber.Ctx) error {
 	).Send(ctx)
 }
 
+func (h handler) CreateMessages(ctx *fiber.Ctx) error {
+	var req = CreateMessagesRequestPayload{}
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	if err := h.svc.CreateMessages(context.Background(), req); err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("create messages success"),
+		infrafiber.WithHttpCode(http.StatusCreated),
+	).Send(ctx)
+}
+
 func (h handler) UploadInbox(ctx *fiber.Ctx) error {
 	var req = UploadInboxRequestPayload{}
 
@@ -124,6 +152,33 @@ func (h handler) UploadInbox(ctx *fiber.Ctx) error {
 
 	return infrafiber.NewResponse(
 		infrafiber.WithMessage("upload inbox success"),
+		infrafiber.WithHttpCode(http.StatusCreated),
+	).Send(ctx)
+}
+
+func (h handler) UpdateStatusOutbox(ctx *fiber.Ctx) error {
+	outboxId := ctx.Params("id", "")
+	if outboxId == "" {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid params"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	if err := h.svc.UpdateStatusOutbox(context.Background(), outboxId); err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("update status outbox success"),
 		infrafiber.WithHttpCode(http.StatusCreated),
 	).Send(ctx)
 }

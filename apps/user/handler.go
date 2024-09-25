@@ -19,6 +19,31 @@ func NewHandler(svc service) handler {
 	}
 }
 
+func (h handler) GetUserList(ctx *fiber.Ctx) error {
+
+	users, err := h.svc.GetUserList(context.Background())
+
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	userListResponse := NewUserListResponseFromEntity(users)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("get list user success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(userListResponse),
+	).Send(ctx)
+}
+
 func (h handler) EditAuth(ctx *fiber.Ctx) error {
 	var req = EditUserRequestPayload{}
 

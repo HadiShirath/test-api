@@ -1,6 +1,8 @@
 package message
 
-import "time"
+import (
+	"time"
+)
 
 type InboxListResponse struct {
 	Id           string    `json:"id"`
@@ -9,14 +11,14 @@ type InboxListResponse struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 	CreatedAt    string    `json:"created_at"`
 }
-
 type OutboxListResponse struct {
-	Id             string    `json:"id"`
-	ReceiverNumber string    `json:"receiver_number"`
-	Message        string    `json:"message"`
-	Processed      bool      `json:"processed"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	CreatedAt      string    `json:"created_at"`
+	Id              string    `json:"id"`
+	ReceiverNumber  string    `json:"receiver_number"`
+	ReceiverNumbers []string  `json:"receiver_numbers"`
+	Message         string    `json:"message"`
+	Processed       bool      `json:"processed"`
+	UpdatedAt       time.Time `json:"updated_at"`
+	CreatedAt       string    `json:"created_at"`
 }
 
 func NewListInboxResponseFromEntity(inboxs []Inbox) []InboxListResponse {

@@ -2,10 +2,12 @@ package user
 
 import (
 	"context"
+	"nbid-online-shop/infra/response"
 	"nbid-online-shop/internal/config"
 )
 
 type Repository interface {
+	GetUserList(ctx context.Context) (users []User, err error)
 	EditTPSSaksi(ctx context.Context, model User, userId string) (err error)
 }
 
@@ -17,6 +19,22 @@ func NewService(repo Repository) service {
 	return service{
 		repo: repo,
 	}
+}
+
+func (s service) GetUserList(ctx context.Context) (users []User, err error) {
+	users, err = s.repo.GetUserList(ctx)
+	if err != nil {
+		if err == response.ErrNotFound {
+			return []User{}, err
+		}
+		return
+	}
+
+	if len(users) == 0 {
+		return []User{}, nil
+	}
+
+	return
 }
 
 func (s service) EditTPSSaksi(ctx context.Context, req EditUserRequestPayload, userId string) (err error) {

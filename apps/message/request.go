@@ -9,6 +9,12 @@ type CreateMessageRequestPayload struct {
 	// CreatedAt    string    `json:"created_at"`
 }
 
+type CreateMessagesRequestPayload struct {
+	Id              string   `json:"id"`
+	ReceiverNumbers []string `json:"receiver_numbers"`
+	Message         string   `json:"message"`
+	Processed       bool     `json:"processed"`
+}
 type StatusMessageRequestPayload struct {
 	Processed string `query:"processed" json:"processed"`
 }

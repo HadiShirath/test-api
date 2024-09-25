@@ -13,8 +13,10 @@ func Init(router fiber.Router, db *sqlx.DB) {
 	svc := NewService(repo)
 	handler := NewHandler(svc)
 
-	productRoute := router.Group("user")
+	userRoute := router.Group("users")
+
 	{
-		productRoute.Put("/:id", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.EditAuth)
+		userRoute.Get("/", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.GetUserList)
+		userRoute.Put("/:id", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.EditAuth)
 	}
 }

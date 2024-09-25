@@ -77,9 +77,9 @@ func (h handler) login(ctx *fiber.Ctx) error {
 			Value:    token,                            // Nilai cookie
 			Expires:  time.Now().Add(10 * time.Minute), // Waktu kedaluwarsa cookie
 			SameSite: "Lax",                            // "Lax", "Strict", atau "None" sesuai kebutuhan
-			Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
-			// Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
-			// Domain: "kamarhitung.id",
+			// Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
+			Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
+			Domain: "kamarhitung.id",
 		})
 	} else {
 		ctx.Cookie(&fiber.Cookie{
@@ -87,9 +87,9 @@ func (h handler) login(ctx *fiber.Ctx) error {
 			Value:    token,                            // Nilai cookie
 			SameSite: "Lax",                            // "Lax", "Strict", atau "None" sesuai kebutuhan
 			Expires:  time.Now().Add(10 * time.Minute), // Waktu kedaluwarsa cookie
-			Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
-			// Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
-			// Domain: "kamarhitung.id",
+			// Secure:   false,                            // Gunakan true jika aplikasi menggunakan HTTPS
+			Secure: true, // Gunakan true jika aplikasi menggunakan HTTPS
+			Domain: "kamarhitung.id",
 		})
 	}
 

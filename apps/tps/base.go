@@ -14,16 +14,16 @@ func Init(router fiber.Router, db *sqlx.DB) {
 	svc := NewService(repo, repoAuth)
 	handler := NewHandler(svc)
 
-	productRoute := router.Group("tps")
+	tpsRoute := router.Group("tps")
 	{
-		productRoute.Get("/", infrafiber.CheckAuth(), handler.TPSAdressDetail)
-		productRoute.Get("/all", infrafiber.CheckAuth(), handler.GetListTPS)
-		productRoute.Get("/saksi", infrafiber.CheckAuth(), handler.GetTPSSaksiPagination)
-		productRoute.Post("/photo", infrafiber.CheckAuth(), handler.CreatePhoto)
-		productRoute.Post("/upload", infrafiber.CheckAuth(), handler.UploadDataTPS)
-		productRoute.Get("/voter/all", infrafiber.CheckAuth(), handler.GetAllVoterTPS)
-		productRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterTPS)
-		productRoute.Put("/voter/user/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPSByUser)
-		productRoute.Put("/voter/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPS)
+		tpsRoute.Get("/", infrafiber.CheckAuth(), handler.TPSAdressDetail)
+		tpsRoute.Get("/all", infrafiber.CheckAuth(), handler.GetListTPS)
+		tpsRoute.Get("/saksi", infrafiber.CheckAuth(), handler.GetTPSSaksiPagination)
+		tpsRoute.Post("/photo", infrafiber.CheckAuth(), handler.CreatePhoto)
+		tpsRoute.Post("/upload", infrafiber.CheckAuth(), handler.UploadDataTPS)
+		tpsRoute.Get("/voter/all", infrafiber.CheckAuth(), handler.GetAllVoterTPS)
+		tpsRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterTPS)
+		tpsRoute.Put("/voter/user/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPSByUser)
+		tpsRoute.Put("/voter/:id", infrafiber.CheckAuth(), handler.UpdateVoteTPS)
 	}
 }

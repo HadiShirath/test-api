@@ -12,11 +12,11 @@ func Init(router fiber.Router, db *sqlx.DB) {
 	svc := NewService(repo)
 	handler := NewHandler(svc)
 
-	productRoute := router.Group("kecamatan")
+	kecamatanRoute := router.Group("kecamatan")
 	{
-		productRoute.Get("/", infrafiber.CheckAuth(), handler.GetAllVoter)
-		productRoute.Get("/all", infrafiber.CheckAuth(), handler.ListKecamatan)
-		productRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListKelurahanFromKecamatan)
-		productRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterKecamatan)
+		kecamatanRoute.Get("/", infrafiber.CheckAuth(), handler.GetAllVoter)
+		kecamatanRoute.Get("/all", infrafiber.CheckAuth(), handler.ListKecamatan)
+		kecamatanRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListKelurahanFromKecamatan)
+		kecamatanRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterKecamatan)
 	}
 }

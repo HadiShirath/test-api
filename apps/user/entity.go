@@ -1,35 +1,37 @@
 package user
 
 import (
-	"nbid-online-shop/infra/response"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	Fullname string `db:"fullname"`
-	Username string `db:"username"`
-	Password string `db:"password"`
+	Fullname        string `db:"fullname"`
+	Username        string `db:"username"`
+	Password        string `db:"password"`
+	PasswordDecoded string `db:"password_decoded"`
+
+	KecamatanName string `db:"kecamatan_name"`
+	KelurahanName string `db:"kelurahan_name"`
+	TpsName       string `db:"tps_name"`
 }
 
 func NewFromEditTPSSaksiRequest(req EditUserRequestPayload) User {
 	return User{
-		Fullname: req.Fullname,
-		Username: req.Username,
-		Password: req.Password,
+		Fullname:        req.Fullname,
+		Username:        req.Username,
+		Password:        req.Password,
+		PasswordDecoded: req.Password,
 	}
 }
 
-func (u User) ValidatePassword() (err error) {
-	if u.Password == "" {
-		return response.ErrPasswordRequired
+func (u User) ToUserListResponse() UserListResponse {
+	return UserListResponse{
+		Username:      u.Username,
+		Fullname:      u.Fullname,
+		KecamatanName: u.KecamatanName,
+		KelurahanName: u.KelurahanName,
+		TpsName:       u.TpsName,
 	}
-
-	if len(u.Password) < 8 {
-		return response.ErrPasswordInvalidLength
-	}
-
-	return
 }
 
 func (u *User) EncryptPassword(salt int) (err error) {
@@ -41,12 +43,4 @@ func (u *User) EncryptPassword(salt int) (err error) {
 	u.Password = string(encryptPass)
 
 	return nil
-}
-
-func (u User) VerifyPasswordFromEncrypted(plain string) (err error) {
-	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plain))
-}
-
-func (u User) VerifyPasswordFromPlain(encrypted string) (err error) {
-	return bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(u.Password))
 }
