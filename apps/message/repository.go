@@ -50,7 +50,7 @@ func (r repository) GetOutboxList(ctx context.Context, model StatusMessage) (out
 	if model.Processed != "" {
 		query = `
 		SELECT
-			id, receiver_number, message, processed, created_at, updated_at
+			id, receiver_number, receiver_numbers, message, processed, created_at, updated_at
 		FROM 
 			outbox
 		WHERE
@@ -58,7 +58,23 @@ func (r repository) GetOutboxList(ctx context.Context, model StatusMessage) (out
 		ORDER BY
 			created_at ASC
 		`
-		err = r.db.SelectContext(ctx, &outboxs, query, model.Processed)
+		rows, err := r.db.QueryContext(ctx, query, model.Processed)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, response.ErrNotFound
+			}
+
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+			var outbox Outbox
+			if err := rows.Scan(&outbox.Id, &outbox.ReceiverNumber, pq.Array(&outbox.ReceiverNumbers), &outbox.Message, &outbox.Processed, &outbox.CreatedAt, &outbox.UpdatedAt); err != nil {
+				log.Fatalln(err)
+			}
+			outboxs = append(outboxs, outbox)
+		}
 
 	} else {
 		query = `
