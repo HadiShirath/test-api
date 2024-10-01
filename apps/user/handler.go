@@ -81,3 +81,28 @@ func (h handler) EditAuth(ctx *fiber.Ctx) error {
 		infrafiber.WithMessage("update user success"),
 	).Send(ctx)
 }
+
+func (h handler) GetDataForExportCSV(ctx *fiber.Ctx) error {
+
+	data, err := h.svc.GetDataForExportCSV(context.Background())
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	getExportDataList := NewExportDataCSVResponseFromEntity(data)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithMessage("get data saksi succesfully"),
+		infrafiber.WithPayload(getExportDataList),
+	).Send(ctx)
+
+}

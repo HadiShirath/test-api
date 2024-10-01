@@ -18,6 +18,32 @@ func NewRepository(db *sqlx.DB) repository {
 	}
 }
 
+func (r repository) GetListTPSCode(ctx context.Context, codeKelurahan string) (tpss []TPS, err error) {
+	query := `
+	   SELECT
+			t.tps_name,
+			t.code 
+		FROM
+			tps t
+		JOIN
+			kelurahan k ON t.kelurahan_id = k.kelurahan_id
+		WHERE
+			k.code = $1
+		ORDER BY
+			t.tps_name ASC
+	`
+
+	err = r.db.SelectContext(ctx, &tpss, query, codeKelurahan)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, response.ErrNotFound
+		}
+		return
+	}
+	return
+
+}
+
 func (r repository) CreatePhoto(ctx context.Context, model TPS, userId string) (err error) {
 	query := `
 		UPDATE tps SET photo=$1 WHERE user_id=$2

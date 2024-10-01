@@ -14,9 +14,9 @@ func Init(router fiber.Router, db *sqlx.DB) {
 	handler := NewHandler(svc)
 
 	userRoute := router.Group("users")
-
 	{
 		userRoute.Get("/", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.GetUserList)
+		userRoute.Get("/csv", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.GetDataForExportCSV)
 		userRoute.Put("/:id", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.EditAuth)
 	}
 }

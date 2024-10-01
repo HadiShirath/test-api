@@ -39,6 +39,13 @@ type TPS struct {
 	Code          string `db:"code"`
 }
 
+func (k Kelurahan) ToKelurahanCodeListResponse() KelurahanCodeListResponse {
+	return KelurahanCodeListResponse{
+		KelurahanName: k.KelurahanName,
+		Code:          k.Code,
+	}
+}
+
 func (k Kelurahan) ToGetVoterKelurahanResponse() KelurahanDetailResponse {
 	return KelurahanDetailResponse{
 		KecamatanName: k.KecamatanName,

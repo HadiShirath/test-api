@@ -6,6 +6,7 @@ import (
 )
 
 type Repository interface {
+	GetListKelurahanCode(ctx context.Context, codeKelurahan string) (kelurahans []Kelurahan, err error)
 	GetKelurahanData(ctx context.Context, codeKelurahan string) (kelurahan Kelurahan, err error)
 	GetListTPSFromKelurahan(ctx context.Context, codeKelurahan string) (tpss []TPS, err error)
 }
@@ -18,6 +19,23 @@ func NewService(repo Repository) service {
 	return service{
 		repo: repo,
 	}
+}
+
+func (s service) GetListKelurahanCode(ctx context.Context, codeKecamatan string) (kelurahans []Kelurahan, err error) {
+
+	kelurahans, err = s.repo.GetListKelurahanCode(ctx, codeKecamatan)
+
+	if err != nil {
+		if err == response.ErrNotFound {
+			return []Kelurahan{}, nil
+		}
+		return
+	}
+
+	if len(kelurahans) == 0 {
+		return []Kelurahan{}, nil
+	}
+	return
 }
 
 func (s service) GetKeluharanData(ctx context.Context, codeKelurahan string) (kelurahan Kelurahan, err error) {

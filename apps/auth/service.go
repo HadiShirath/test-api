@@ -21,7 +21,7 @@ func NewService(repo Repository) service {
 	}
 }
 
-func (s service) register(ctx context.Context, req RegisterRequestPayload) (err error) {
+func (s service) register(ctx context.Context, req RegisterRequestPayload) (userId string, err error) {
 	authEntity := NewFromRegisterRequest(req)
 	if err = authEntity.Validate(); err != nil {
 		return
@@ -34,10 +34,15 @@ func (s service) register(ctx context.Context, req RegisterRequestPayload) (err 
 	model, _ := s.repo.GetAuthByUsername(ctx, authEntity.Username)
 
 	if model.IsExists() {
-		return response.ErrUsernameAlreadyUsed
+		return "", response.ErrUsernameAlreadyUsed
 	}
 
-	return s.repo.CreateAuth(ctx, authEntity)
+	err = s.repo.CreateAuth(ctx, authEntity)
+	if err != nil {
+		return
+	}
+
+	return authEntity.PublicId.String(), nil
 }
 
 func (s service) login(ctx context.Context, req LoginRequestPayload) (token string, role string, err error) {

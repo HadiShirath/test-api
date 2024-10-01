@@ -19,6 +19,37 @@ func NewHandler(svc service) handler {
 	}
 }
 
+func (h handler) GetListKelurahanCode(ctx *fiber.Ctx) error {
+	codeKecamatan := ctx.Params("code", "")
+	if codeKecamatan == "" {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	kelurahans, err := h.svc.GetListKelurahanCode(context.Background(), codeKecamatan)
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	kelurahanCodeListResponse := NewKelurahanCodeResponseFromEntity(kelurahans)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("get list kelurahan code success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(kelurahanCodeListResponse),
+	).Send(ctx)
+}
+
 func (h handler) GetKelurahanData(ctx *fiber.Ctx) error {
 	codeKelurahan := ctx.Params("code", "")
 	if codeKelurahan == "" {

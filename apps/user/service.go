@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	GetUserList(ctx context.Context) (users []User, err error)
 	EditTPSSaksi(ctx context.Context, model User, userId string) (err error)
+	GetDataForExportCSV(ctx context.Context) (users []User, err error)
 }
 
 type service struct {
@@ -52,4 +53,21 @@ func (s service) EditTPSSaksi(ctx context.Context, req EditUserRequestPayload, u
 
 	return
 
+}
+
+func (s service) GetDataForExportCSV(ctx context.Context) (data []User, err error) {
+
+	data, err = s.repo.GetDataForExportCSV(ctx)
+
+	if err != nil {
+		if err == response.ErrNotFound {
+			return []User{}, nil
+		}
+		return
+	}
+
+	if len(data) == 0 {
+		return []User{}, nil
+	}
+	return
 }

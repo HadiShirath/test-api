@@ -92,6 +92,13 @@ func NewTPSSaksiPaginationFromProductRequest(req ListTPSSaksiRequestPayload) TPS
 	}
 }
 
+func (t TPS) ToTPSCodeListResponse() TPSCodeListResponse {
+	return TPSCodeListResponse{
+		TpsName: t.TpsName,
+		Code:    t.Code,
+	}
+}
+
 func (t TPS) ToTPSListSaksiResponse() TPSListSaksiResponse {
 	return TPSListSaksiResponse{
 		KecamatanName:   t.KecamatanName,

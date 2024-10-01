@@ -2,6 +2,7 @@ package kecamatan
 
 import (
 	"context"
+	"encoding/csv"
 	infrafiber "nbid-online-shop/infra/fiber"
 	"nbid-online-shop/infra/response"
 	"net/http"
@@ -129,4 +130,77 @@ func (h handler) GetListKelurahanFromKecamatan(ctx *fiber.Ctx) error {
 		infrafiber.WithHttpCode(http.StatusOK),
 		infrafiber.WithPayload(kecamatanListResponse),
 	).Send(ctx)
+}
+
+func (h handler) GetListKecamatanCode(ctx *fiber.Ctx) error {
+
+	kecamatans, err := h.svc.GetListKecamatanCode(context.Background())
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	kecamatanCodeListResponse := NewKecamatanCodeResponseFromEntity(kecamatans)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("get list kecamatan code success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(kecamatanCodeListResponse),
+	).Send(ctx)
+}
+
+func (h handler) importCSVHandler(ctx *fiber.Ctx) error {
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("Error retrieving the file"),
+			infrafiber.WithError(err),
+		).Send(ctx)
+	}
+
+	// Membaca file CSV langsung dari input
+	f, err := file.Open()
+	if err != nil {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("Error opening the CSV file"),
+			infrafiber.WithError(err),
+		).Send(ctx)
+	}
+	defer f.Close()
+
+	reader := csv.NewReader(f)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("Error reading the CSV file"),
+			infrafiber.WithError(err),
+		).Send(ctx)
+	}
+
+	err = h.svc.ImportCSV(context.Background(), records)
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid process import data"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("Data imported successfully!"),
+		infrafiber.WithHttpCode(http.StatusOK),
+	).Send(ctx)
+
 }

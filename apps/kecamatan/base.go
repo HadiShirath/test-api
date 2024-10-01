@@ -1,6 +1,7 @@
 package kecamatan
 
 import (
+	"nbid-online-shop/apps/auth"
 	infrafiber "nbid-online-shop/infra/fiber"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,14 +10,17 @@ import (
 
 func Init(router fiber.Router, db *sqlx.DB) {
 	repo := NewRepository(db)
-	svc := NewService(repo)
+	repoAuth := auth.NewRepository(db)
+	svc := NewService(repo, repoAuth)
 	handler := NewHandler(svc)
 
 	kecamatanRoute := router.Group("kecamatan")
 	{
-		kecamatanRoute.Get("/", infrafiber.CheckAuth(), handler.GetAllVoter)
+		kecamatanRoute.Get("/", infrafiber.CheckAuth(), handler.GetListKecamatanCode)
 		kecamatanRoute.Get("/all", infrafiber.CheckAuth(), handler.ListKecamatan)
+		kecamatanRoute.Get("/voters", infrafiber.CheckAuth(), handler.GetAllVoter)
 		kecamatanRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListKelurahanFromKecamatan)
 		kecamatanRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetVoterKecamatan)
+		kecamatanRoute.Post("/file/csv", infrafiber.CheckAuth(), infrafiber.CheckRoles([]string{string(auth.ROLE_Admin)}), handler.importCSVHandler)
 	}
 }

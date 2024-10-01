@@ -18,6 +18,32 @@ func NewRepository(db *sqlx.DB) repository {
 	}
 }
 
+func (r repository) GetListKelurahanCode(ctx context.Context, codeKecamatan string) (kelurahans []Kelurahan, err error) {
+	query := `
+	   SELECT
+			k.kelurahan_name,
+			k.code 
+		FROM
+			kelurahan k
+		JOIN
+			kecamatan c ON k.kecamatan_id = c.kecamatan_id
+		WHERE
+			c.code = $1
+		ORDER BY
+			k.kelurahan_name ASC
+	`
+
+	err = r.db.SelectContext(ctx, &kelurahans, query, codeKecamatan)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, response.ErrNotFound
+		}
+		return
+	}
+	return
+
+}
+
 func (r repository) GetKelurahanData(ctx context.Context, codeKelurahan string) (kelurahan Kelurahan, err error) {
 	query := `
 		SELECT

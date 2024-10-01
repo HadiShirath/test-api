@@ -1,6 +1,8 @@
 package user
 
 import (
+	"nbid-online-shop/internal/config"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,6 +33,18 @@ func (u User) ToUserListResponse() UserListResponse {
 		KecamatanName: u.KecamatanName,
 		KelurahanName: u.KelurahanName,
 		TpsName:       u.TpsName,
+	}
+}
+
+func (u User) ToExportDataCSVResponse() ExportDataCSVResponse {
+	return ExportDataCSVResponse{
+		KecamatanName: u.KecamatanName,
+		KelurahanName: u.KelurahanName,
+		TpsName:       u.TpsName,
+		FullName:      u.Fullname,
+		Username:      u.Username,
+		Password:      u.PasswordDecoded,
+		CodeUnique:    config.Cfg.App.Code,
 	}
 }
 

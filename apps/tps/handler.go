@@ -19,6 +19,38 @@ func NewHandler(svc service) handler {
 		svc: svc,
 	}
 }
+
+func (h handler) GetListTPSCode(ctx *fiber.Ctx) error {
+	codeKelurahan := ctx.Params("code", "")
+	if codeKelurahan == "" {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	tpss, err := h.svc.GetListTPSCode(context.Background(), codeKelurahan)
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	tpsCodeListResponse := NewTPSCodeResponseFromEntity(tpss)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("get list tps code success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(tpsCodeListResponse),
+	).Send(ctx)
+}
+
 func (h handler) CreatePhoto(ctx *fiber.Ctx) error {
 
 	user_id := fmt.Sprintf("%+v", ctx.Locals("PUBLIC_ID"))

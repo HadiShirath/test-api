@@ -14,8 +14,8 @@ func Init(router fiber.Router, db *sqlx.DB) {
 
 	kelurahanRoute := router.Group("kelurahan")
 	{
-
-		kelurahanRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListTPSFromKelurahan)
+		kelurahanRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListKelurahanCode)
+		kelurahanRoute.Get("/:code/detail", infrafiber.CheckAuth(), handler.GetListTPSFromKelurahan)
 		kelurahanRoute.Get("/voter/:code", infrafiber.CheckAuth(), handler.GetKelurahanData)
 	}
 }

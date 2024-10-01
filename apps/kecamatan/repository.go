@@ -3,6 +3,7 @@ package kecamatan
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"nbid-online-shop/infra/response"
 
 	"github.com/jmoiron/sqlx"
@@ -145,6 +146,136 @@ func (r repository) GetListKelurahanFromKecamatan(ctx context.Context, codeKecam
 	`
 
 	err = r.db.SelectContext(ctx, &kelurahans, query, codeKecamatan)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, response.ErrNotFound
+		}
+		return
+
+	}
+	return
+
+}
+
+func (r repository) deleteDataKecamatanKelurahanTPS(ctx context.Context) (err error) {
+	query := `
+	DELETE FROM tps
+	`
+
+	if _, err = r.db.ExecContext(ctx, query); err != nil {
+		return
+	}
+
+	query = `
+	DELETE FROM kelurahan
+	`
+
+	if _, err = r.db.ExecContext(ctx, query); err != nil {
+		return
+	}
+
+	query = `
+	DELETE FROM kecamatan
+	`
+
+	if _, err = r.db.ExecContext(ctx, query); err != nil {
+		return
+	}
+
+	query = `
+	DELETE FROM auth WHERE role NOT IN ('admin', 'user')
+	`
+
+	if _, err = r.db.ExecContext(ctx, query); err != nil {
+		return
+	}
+
+	return nil
+}
+
+func (r repository) createKecamatan(ctx context.Context, model Output) (err error) {
+	query := `
+		INSERT INTO kecamatan (
+			kecamatan_id, kecamatan_name, total_voters, total_tps, code
+		) VALUES (
+			:kecamatan_id, :kecamatan_name, :total_voters, :total_tps, :code
+		)
+	`
+
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return
+	}
+
+	defer stmt.Close()
+
+	if _, err = stmt.ExecContext(ctx, model); err != nil {
+		return
+	}
+
+	return
+}
+
+func (r repository) createKelurahan(ctx context.Context, model KelurahanOutput) (err error) {
+	query := `
+		INSERT INTO kelurahan (
+			kelurahan_id, kecamatan_id, kelurahan_name, total_voters, total_tps, code
+		) VALUES (
+			:kelurahan_id, :kecamatan_id, :kelurahan_name, :total_voters_kelurahan, :total_tps_kelurahan, :code_kelurahan
+		)
+	`
+
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return
+	}
+
+	defer stmt.Close()
+
+	if _, err = stmt.ExecContext(ctx, model); err != nil {
+		return
+	}
+
+	return nil
+}
+
+// Fungsi untuk menyisipkan data ke dalam tabel tps
+func (r repository) createTps(ctx context.Context, model TpsOutput) error {
+	query := `
+		INSERT INTO tps (
+			tps_id, kecamatan_id, kelurahan_id, tps_name, user_id, total_voters,
+			paslon1, paslon2, paslon3, paslon4, suara_sah, suara_tidak_sah, photo, code
+		) VALUES (
+			:tps_id, :kecamatan_id, :kelurahan_id, :tps_name, :user_id, :total_voters,
+			:paslon1, :paslon2, :paslon3, :paslon4, :suara_sah, :suara_tidak_sah, :photo, :code
+		)
+	`
+
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.ExecContext(ctx, model); err != nil {
+		return fmt.Errorf("failed to execute statement: %w", err)
+	}
+
+	return nil
+}
+
+func (r repository) GetListKecamatanCode(ctx context.Context) (kecamatans []Kecamatan, err error) {
+	query := `
+	    SELECT
+			kecamatan_name,
+			code
+		FROM
+			kecamatan
+		ORDER BY
+			kecamatan_name ASC;
+	`
+
+	err = r.db.SelectContext(ctx, &kecamatans, query)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, response.ErrNotFound

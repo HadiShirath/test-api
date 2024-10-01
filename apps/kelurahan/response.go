@@ -36,3 +36,18 @@ func NewTPSListResponseFromEntity(tpss []TPS) []TPSListResponse {
 
 	return tpsList
 }
+
+type KelurahanCodeListResponse struct {
+	KelurahanName string `json:"kelurahan_name"`
+	Code          string `json:"code"`
+}
+
+func NewKelurahanCodeResponseFromEntity(kelurahans []Kelurahan) []KelurahanCodeListResponse {
+	var kelurahanCodeList = []KelurahanCodeListResponse{}
+
+	for _, kelurahan := range kelurahans {
+		kelurahanCodeList = append(kelurahanCodeList, kelurahan.ToKelurahanCodeListResponse())
+	}
+
+	return kelurahanCodeList
+}

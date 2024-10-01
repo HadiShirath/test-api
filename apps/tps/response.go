@@ -50,6 +50,21 @@ type TPSListSaksiResponse struct {
 	Code            string `json:"code"`
 }
 
+type TPSCodeListResponse struct {
+	TpsName string `json:"tps_name"`
+	Code    string `json:"code"`
+}
+
+func NewTPSCodeResponseFromEntity(tpss []TPS) []TPSCodeListResponse {
+	var tpsCodeList = []TPSCodeListResponse{}
+
+	for _, kelurahan := range tpss {
+		tpsCodeList = append(tpsCodeList, kelurahan.ToTPSCodeListResponse())
+	}
+
+	return tpsCodeList
+}
+
 func NewTPSListSaksiResponseFromEntity(tpss []TPS) []TPSListSaksiResponse {
 	var TPSListSaksi = []TPSListSaksiResponse{}
 

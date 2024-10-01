@@ -68,3 +68,31 @@ func (r repository) EditTPSSaksi(ctx context.Context, model User, userId string)
 
 	return
 }
+
+func (r repository) GetDataForExportCSV(ctx context.Context) (users []User, err error) {
+	query := `
+	   SELECT
+		k.kecamatan_name,
+		l.kelurahan_name,
+		t.tps_name,
+		a.fullname,
+		a.username,
+		a.password_decoded
+            FROM tps t
+        JOIN kelurahan l ON t.kelurahan_id = l.kelurahan_id
+        JOIN kecamatan k ON l.kecamatan_id = k.kecamatan_id
+        JOIN auth a ON t.user_id = a.public_id
+            ORDER BY k.kecamatan_name ASC, l.kelurahan_name ASC
+	`
+
+	err = r.db.SelectContext(ctx, &users, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, response.ErrNotFound
+		}
+		return
+
+	}
+	return
+
+}

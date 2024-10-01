@@ -25,6 +25,7 @@ var (
 	ErrCodeInvalid           = errors.New("code unique is invalid")
 	ErrUserNotFound          = errors.New("user not found")
 	ErrTotalVoteInvalid      = errors.New("total vote exceed the limit")
+	ErrFormatCSVInvalid      = errors.New("format csv is invalid")
 
 	// products
 	ErrProductRequired = errors.New("product is required")
@@ -75,7 +76,8 @@ var (
 	ErrorPriceInvalid          = NewError(ErrPriceInvalid.Error(), "40008", http.StatusBadRequest)
 	ErrorAmountInvalid         = NewError(ErrAmountInvalid.Error(), "40009", http.StatusBadRequest)
 	ErrorCodeInvalid           = NewError(ErrCodeInvalid.Error(), "40010", http.StatusBadRequest)
-	ErrorTotalVoteInvalid      = NewError(ErrTotalVoteInvalid.Error(), "40010", http.StatusBadRequest)
+	ErrorTotalVoteInvalid      = NewError(ErrTotalVoteInvalid.Error(), "40011", http.StatusBadRequest)
+	ErrorFormatCSVInvalid      = NewError(ErrFormatCSVInvalid.Error(), "40012", http.StatusBadRequest)
 
 	ErrorAuthIsNoExists   = NewError(ErrAuthIsNoExists.Error(), "40401", http.StatusNotFound)
 	ErrorEmailAlreadyUsed = NewError(ErrUsernameAlreadyUsed.Error(), "40901", http.StatusConflict)
@@ -99,5 +101,6 @@ var (
 		ErrForbiddenAcces.Error():        ErrorForbiddenAccess,
 		ErrCodeInvalid.Error():           ErrorCodeInvalid,
 		ErrTotalVoteInvalid.Error():      ErrorTotalVoteInvalid,
+		ErrFormatCSVInvalid.Error():      ErrorFormatCSVInvalid,
 	}
 )

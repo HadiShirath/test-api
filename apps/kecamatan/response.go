@@ -30,6 +30,21 @@ type KecamatanListResponse struct {
 	Code          string `json:"code"`
 }
 
+type KecamatanCodeListResponse struct {
+	KecamatanName string `json:"kecamatan_name"`
+	Code          string `json:"code"`
+}
+
+func NewKecamatanCodeResponseFromEntity(kecamatans []Kecamatan) []KecamatanCodeListResponse {
+	var kecamatanCodeList = []KecamatanCodeListResponse{}
+
+	for _, kecamatan := range kecamatans {
+		kecamatanCodeList = append(kecamatanCodeList, kecamatan.ToKecamatanCodeListResponse())
+	}
+
+	return kecamatanCodeList
+}
+
 func NewKecamatanListResponseFromEntity(Kecamatans []Kecamatan) []KecamatanListResponse {
 	var KecamatanList = []KecamatanListResponse{}
 

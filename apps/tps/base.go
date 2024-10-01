@@ -19,6 +19,7 @@ func Init(router fiber.Router, db *sqlx.DB) {
 		tpsRoute.Get("/", infrafiber.CheckAuth(), handler.TPSAdressDetail)
 		tpsRoute.Get("/all", infrafiber.CheckAuth(), handler.GetListTPS)
 		tpsRoute.Get("/saksi", infrafiber.CheckAuth(), handler.GetTPSSaksiPagination)
+		tpsRoute.Get("/:code", infrafiber.CheckAuth(), handler.GetListTPSCode)
 		tpsRoute.Post("/photo", infrafiber.CheckAuth(), handler.CreatePhoto)
 		tpsRoute.Post("/upload", infrafiber.CheckAuth(), handler.UploadDataTPS)
 		tpsRoute.Get("/voter/all", infrafiber.CheckAuth(), handler.GetAllVoterTPS)

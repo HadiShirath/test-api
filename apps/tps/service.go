@@ -23,8 +23,8 @@ type Repository interface {
 	EditTPSSaksi(ctx context.Context, model TPS, userId string) (err error)
 	GetListTPS(ctx context.Context) (tpss []TPS, err error)
 	EditVoteTPS(ctx context.Context, model TPS, tpsId string) (err error)
-	// UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (err error)
 	UpdateVoteTPSByUserId(ctx context.Context, model TPS, userId string) (updatedModel TPS, err error)
+	GetListTPSCode(ctx context.Context, codeKelurahan string) (tpss []TPS, err error)
 }
 
 type service struct {
@@ -37,6 +37,22 @@ func NewService(repo Repository, repoAuth auth.Repository) service {
 		repo:     repo,
 		repoAuth: repoAuth,
 	}
+}
+
+func (s service) GetListTPSCode(ctx context.Context, codeKelurahan string) (tpss []TPS, err error) {
+	tpss, err = s.repo.GetListTPSCode(ctx, codeKelurahan)
+
+	if err != nil {
+		if err == response.ErrNotFound {
+			return []TPS{}, nil
+		}
+		return
+	}
+
+	if len(tpss) == 0 {
+		return []TPS{}, nil
+	}
+	return
 }
 
 func (s service) CreatePhoto(ctx context.Context, c *fiber.Ctx, file *multipart.FileHeader, userId string) (err error) {
