@@ -44,6 +44,31 @@ func (h handler) GetUserList(ctx *fiber.Ctx) error {
 	).Send(ctx)
 }
 
+func (h handler) GetUserSaksiList(ctx *fiber.Ctx) error {
+
+	users, err := h.svc.GetUserSaksiList(context.Background())
+
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	userListResponse := NewUserSaksiListResponseFromEntity(users)
+
+	return infrafiber.NewResponse(
+		infrafiber.WithMessage("get list user success"),
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithPayload(userListResponse),
+	).Send(ctx)
+}
+
 func (h handler) EditAuth(ctx *fiber.Ctx) error {
 	var req = EditUserRequestPayload{}
 
@@ -105,4 +130,33 @@ func (h handler) GetDataForExportCSV(ctx *fiber.Ctx) error {
 		infrafiber.WithPayload(getExportDataList),
 	).Send(ctx)
 
+}
+
+func (h handler) DeleteUserById(ctx *fiber.Ctx) error {
+	userId := ctx.Params("id", "")
+	if userId == "" {
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid product"),
+			infrafiber.WithError(response.ErrorBadRequest),
+		).Send(ctx)
+	}
+
+	err := h.svc.DeleteUserById(context.Background(), userId)
+
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		return infrafiber.NewResponse(
+			infrafiber.WithMessage("invalid payload"),
+			infrafiber.WithError(myErr),
+		).Send(ctx)
+	}
+
+	return infrafiber.NewResponse(
+		infrafiber.WithHttpCode(http.StatusOK),
+		infrafiber.WithMessage("delete user success"),
+	).Send(ctx)
 }

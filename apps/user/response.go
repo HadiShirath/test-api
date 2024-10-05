@@ -1,6 +1,24 @@
 package user
 
 type UserListResponse struct {
+	PublicID        string `json:"public_id"`
+	Username        string `json:"username"`
+	Fullname        string `json:"fullname"`
+	PasswordDecoded string `json:"password_decoded"`
+	Role            string `json:"role"`
+}
+
+func NewUserListResponseFromEntity(users []User) []UserListResponse {
+	var userList = []UserListResponse{}
+
+	for _, user := range users {
+		userList = append(userList, user.ToUserListResponse())
+	}
+
+	return userList
+}
+
+type UserSaksiListResponse struct {
 	Username      string `json:"username"`
 	Fullname      string `json:"fullname"`
 	KecamatanName string `json:"kecamatan_name"`
@@ -8,11 +26,11 @@ type UserListResponse struct {
 	TpsName       string `json:"tps_name"`
 }
 
-func NewUserListResponseFromEntity(users []User) []UserListResponse {
-	var userList = []UserListResponse{}
+func NewUserSaksiListResponseFromEntity(users []User) []UserSaksiListResponse {
+	var userList = []UserSaksiListResponse{}
 
-	for _, inbox := range users {
-		userList = append(userList, inbox.ToUserListResponse())
+	for _, user := range users {
+		userList = append(userList, user.ToUserSaksiListResponse())
 	}
 
 	return userList

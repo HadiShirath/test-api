@@ -37,6 +37,10 @@ func (s service) register(ctx context.Context, req RegisterRequestPayload) (user
 		return "", response.ErrUsernameAlreadyUsed
 	}
 
+	if err = authEntity.ValidateRole(); err != nil {
+		return
+	}
+
 	err = s.repo.CreateAuth(ctx, authEntity)
 	if err != nil {
 		return

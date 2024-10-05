@@ -23,7 +23,7 @@ type AuthEntity struct {
 	Fullname        string    `db:"fullname"`
 	Password        string    `db:"password"`
 	PasswordDecoded string    `db:"password_decoded"`
-	Role            Role      `db:"role"`
+	Role            string    `db:"role"`
 	CreatedAt       time.Time `db:"created_at"`
 	UpdatedAt       time.Time `db:"updated_at"`
 }
@@ -35,7 +35,7 @@ func NewFromRegisterRequest(req RegisterRequestPayload) AuthEntity {
 		Fullname:        req.Fullname,
 		Password:        req.Password,
 		PasswordDecoded: req.Password,
-		Role:            ROLE_Saksi,
+		Role:            req.Role,
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
@@ -86,6 +86,14 @@ func (a AuthEntity) ValidatePassword() (err error) {
 
 func (a AuthEntity) IsExists() bool {
 	return a.PublicId.ID() != 0
+}
+
+func (a *AuthEntity) ValidateRole() (err error) {
+	if a.Role == "" {
+		a.Role = string(ROLE_Saksi)
+	}
+
+	return nil
 }
 
 func (a *AuthEntity) EncryptPassword(salt int) (err error) {

@@ -21,6 +21,27 @@ func NewRepository(db *sqlx.DB) repository {
 func (r repository) GetUserList(ctx context.Context) (users []User, err error) {
 	query := `
 		SELECT
+			public_id, username, fullname, password_decoded, role
+		FROM auth
+		WHERE role='user'
+	`
+
+	err = r.db.SelectContext(ctx, &users, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, response.ErrNotFound
+		}
+		return
+
+	}
+
+	return
+
+}
+
+func (r repository) GetUserSaksiList(ctx context.Context) (users []User, err error) {
+	query := `
+		SELECT
 			a.username,
 			a.fullname,
 			k.kecamatan_name,
@@ -95,4 +116,17 @@ func (r repository) GetDataForExportCSV(ctx context.Context) (users []User, err 
 	}
 	return
 
+}
+
+func (r repository) DeleteUserById(ctx context.Context, userId string) (err error) {
+
+	query := `
+		DELETE FROM auth WHERE public_id=$1 AND role='user'
+	`
+
+	if _, err = r.db.ExecContext(ctx, query, userId); err != nil {
+		return
+	}
+
+	return nil
 }

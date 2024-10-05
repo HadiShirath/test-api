@@ -7,8 +7,10 @@ import (
 )
 
 type User struct {
+	PublicID        string `db:"public_id"`
 	Fullname        string `db:"fullname"`
 	Username        string `db:"username"`
+	Role            string `db:"role"`
 	Password        string `db:"password"`
 	PasswordDecoded string `db:"password_decoded"`
 
@@ -28,6 +30,16 @@ func NewFromEditTPSSaksiRequest(req EditUserRequestPayload) User {
 
 func (u User) ToUserListResponse() UserListResponse {
 	return UserListResponse{
+		PublicID:        u.PublicID,
+		Username:        u.Username,
+		Fullname:        u.Fullname,
+		PasswordDecoded: u.PasswordDecoded,
+		Role:            u.Role,
+	}
+}
+
+func (u User) ToUserSaksiListResponse() UserSaksiListResponse {
+	return UserSaksiListResponse{
 		Username:      u.Username,
 		Fullname:      u.Fullname,
 		KecamatanName: u.KecamatanName,

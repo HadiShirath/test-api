@@ -8,8 +8,10 @@ import (
 
 type Repository interface {
 	GetUserList(ctx context.Context) (users []User, err error)
+	GetUserSaksiList(ctx context.Context) (users []User, err error)
 	EditTPSSaksi(ctx context.Context, model User, userId string) (err error)
 	GetDataForExportCSV(ctx context.Context) (users []User, err error)
+	DeleteUserById(ctx context.Context, userId string) (err error)
 }
 
 type service struct {
@@ -24,6 +26,22 @@ func NewService(repo Repository) service {
 
 func (s service) GetUserList(ctx context.Context) (users []User, err error) {
 	users, err = s.repo.GetUserList(ctx)
+	if err != nil {
+		if err == response.ErrNotFound {
+			return []User{}, err
+		}
+		return
+	}
+
+	if len(users) == 0 {
+		return []User{}, nil
+	}
+
+	return
+}
+
+func (s service) GetUserSaksiList(ctx context.Context) (users []User, err error) {
+	users, err = s.repo.GetUserSaksiList(ctx)
 	if err != nil {
 		if err == response.ErrNotFound {
 			return []User{}, err
@@ -69,5 +87,14 @@ func (s service) GetDataForExportCSV(ctx context.Context) (data []User, err erro
 	if len(data) == 0 {
 		return []User{}, nil
 	}
+	return
+}
+
+func (s service) DeleteUserById(ctx context.Context, userId string) (err error) {
+
+	if err := s.repo.DeleteUserById(ctx, userId); err != nil {
+		return err
+	}
+
 	return
 }
