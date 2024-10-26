@@ -43,8 +43,8 @@ func main() {
 
 	// Configure CORS
 	app.Use(cors.New(cors.Config{
-		// AllowOrigins: "http://localhost:5173", // Change this to the allowed origin
-		AllowOrigins:     "https://kamarhitung.id", // Change this to the allowed origin
+		AllowOrigins: "http://localhost:5173", // Change this to the allowed origin
+		// AllowOrigins:     "https://kamarhitung.id", // Change this to the allowed origin
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
 		AllowCredentials: true,
